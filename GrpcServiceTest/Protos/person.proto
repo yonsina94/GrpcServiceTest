@@ -5,6 +5,7 @@ option csharp_namespace = "GrpcServiceTest";
 package person;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
  
 // The person service definition
 service Person {
@@ -12,10 +13,10 @@ service Person {
 	rpc GetAll(google.protobuf.Empty) returns (Persons);
 
 	// Find a person by a expecific criterial
-	rpc Find(PersonFind) returns (PersonModel);
+	rpc FindOne(PersonFind) returns (PersonModel);
 
 	// Save a new person
-	rpc Save(PersonModel) returns (PersonModel);
+	rpc Save(PersonModel) returns (Result);
 
 	// Delete a certain person
 	rpc Delete(PersonFind) returns (Result);
@@ -23,7 +24,7 @@ service Person {
 
 // Definition of a person model
 message PersonModel {
-	string id = 1;
+	string Id = 1;
 	string name = 2;
 	string lastName = 3;
 	int32 age = 4;
@@ -32,18 +33,18 @@ message PersonModel {
 
 // Definition of a person list
 message Persons {
-	repeated PersonModel persons = 1;
+	repeated PersonModel list = 1;
 }
 
 // Definition of a person finder
 message PersonFind {
 	optional string email = 1;
-	optional string id = 2;
+	optional string Id = 2;
 }
 
 // Definition of a result from server
 message Result{
 	bool success = 1;
-	string message = 2;
-	bytes data = 3;
+	optional string message = 2;
+	optional google.protobuf.Any data = 3;
 }
