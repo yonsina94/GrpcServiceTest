@@ -13,21 +13,6 @@ namespace GrpcServiceTest.Database
 
         public DbSet<PersonEntity> Persons { get; set; }
 
-        /* protected override void OnModelCreating(ModelBuilder builder)
-         {
-             builder.Entity<PersonEntity>()
-                 .Property(p=>p.Name).IsRequired().HasMaxLength(80);
-
-             builder.Entity<PersonEntity>()
-                 .Property(p => p.LastName).IsRequired().HasMaxLength(80);
-
-             builder.Entity<PersonEntity>()
-                 .Property(p => p.Email).IsRequired().HasMaxLength(120);
-
-             builder.Entity<PersonEntity>()
-                 .Property(p => p.Age).IsRequired();
-         } */
-
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
             OnBeforeSaving();
