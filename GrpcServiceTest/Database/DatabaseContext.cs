@@ -8,6 +8,7 @@ namespace GrpcServiceTest.Database
     {
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
+            Database.EnsureCreated();
         }
 
         public DbSet<PersonEntity> Persons { get; set; }

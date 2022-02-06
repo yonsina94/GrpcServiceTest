@@ -10,7 +10,7 @@ import "google/protobuf/any.proto";
 // The person service definition
 service Person {
 	// Get all persons in the system
-	rpc GetAll(google.protobuf.Empty) returns (Persons);
+	rpc GetAll(stream google.protobuf.Empty) returns (stream Persons);
 
 	// Find a person by a expecific criterial
 	rpc FindOne(PersonFind) returns (PersonModel);

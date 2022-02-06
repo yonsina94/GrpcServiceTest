@@ -80,23 +80,26 @@ namespace GrpcServiceTest.Services
             }
         }
 
-        public override async Task<Persons> GetAll(Empty request, ServerCallContext context)
+        public override async Task GetAll(IAsyncStreamReader<Empty> requestStream, IServerStreamWriter<Persons> responseStream, ServerCallContext context)
         {
-            try
-            {
-                var persons = new Persons();
 
-                persons.List.AddRange((await _repo.GetAllAsync()).Select(p => new PersonModel { Id = p.Id.ToString(), Name = p.Name, LastName = p.LastName, Email = p.Email, Age = p.Age }).ToList());
-
-                return persons;
-            }
-            catch (Exception e)
+            while (await requestStream.MoveNext())
             {
-                _logger.LogError(e,null);
-                return new Persons();
-                throw;
+                try
+                {
+                    var persons = new Persons();
+
+                    persons.List.AddRange((await _repo.GetAllAsync()).Select(p => new PersonModel { Id = p.Id.ToString(), Name = p.Name, LastName = p.LastName, Email = p.Email, Age = p.Age }).ToList());
+
+                    await responseStream.WriteAsync(persons);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, null);
+                    responseStream.WriteAsync(new Persons());
+                    throw;
+                }
             }
-            
         }
 
         public override async Task<Result> Save(PersonModel request, ServerCallContext context)
@@ -104,14 +107,14 @@ namespace GrpcServiceTest.Services
             try
             {
                 var result = (await _repo.GetAsync(p => p.Email == request.Email)).FirstOrDefault();
-                if(result != null)
+                if(result == null)
                 {
                    result = await _repo.InsertAsync(new PersonEntity { Name = request.Name, LastName = request.LastName, Age = request.Age, Email = request.Email });
                     await _repo.CommitChangesAsync();
                     return new Result
                     {
                         Success = true,
-                        Data = Any.Parser.ParseJson(JsonConvert.SerializeObject(new PersonModel { Id = result.Id.ToString(), Name = result.Name, LastName = result.LastName, Email = result.Email, Age = result.Age }))
+                        Data = Any.Pack(new PersonModel { Id = result.Id.ToString(), Name = result.Name, LastName = result.LastName, Email = result.Email, Age = result.Age })
                     };
                 } else
                 {
